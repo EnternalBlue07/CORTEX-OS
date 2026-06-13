@@ -1,0 +1,36 @@
+# Minimal CI: dependency + production build integrity gate for CORTEX OS.
+# Pre-flight compilation check before manual runtime validation.
+# Intentionally lean — no deploy, Docker, or backend stages yet.
+
+stages:
+  - install
+  - build
+
+default:
+  image: node:20-alpine
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - node_modules/
+
+install:
+  stage: install
+  script:
+    - npm ci
+  artifacts:
+    paths:
+      - node_modules/
+    expire_in: 1 hour
+
+build:
+  stage: build
+  needs:
+    - install
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
